@@ -1,0 +1,38 @@
+- Creating new version
+* change VERSION and VERSION_DATE in converter 
+* change tar.gz filename and directory in make_tgz.sh 
+* add Release notes in Changelog
+
+- Making a new filter
+Copy the filter header and init code from another filter, for example:
+------copy from here---------
+#!/bin/bash
+# CONVERTER
+# CONVERTER NAME=AVI to MPEG2
+# CONVERTER INPUT_EXTENSION=avi
+# CONVERTER INPUT_MIME=video/x-msvideo
+# CONVERTER OUTPUT_EXTENSION=mpg
+# CONVERTER OUTPUT_MIME=video/mp2p
+# CONVERTER VIEWER=mplayer
+# CONVERTER NEEDED_TOOLS=mencoder
+# CONVERTER
+
+export INPUT_FILE="$1"
+export OUTPUT_FILE="$2"
+. /etc/converter/tools
+init_filter
+
+echo "Filter AVI to MPEG2"
+echo "INPUT_FILE = $INPUT_FILE"
+echo "OUTPUT_FILE = $OUTPUT_FILE"
+--------until here-------------
+
+
+INPUT_FILE is the source file and OUTPUT_FILE is the target file
+You can get the MIME type using an example file and running the following command:
+file -b -i <filename>
+
+You can see an output like this:
+application/octet-stream; charset=binary
+
+The MIME type is the first part: application/octet-stream

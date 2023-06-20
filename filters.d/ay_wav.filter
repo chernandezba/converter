@@ -1,0 +1,26 @@
+#!/bin/bash
+# CONVERTER
+# CONVERTER NAME=Spectrum Audio AY Chip to WAV audio
+# CONVERTER INPUT_EXTENSION=ay
+# CONVERTER INPUT_MIME=application/octet-stream
+# CONVERTER OUTPUT_EXTENSION=wav
+# CONVERTER OUTPUT_MIME=audio/x-wav
+# CONVERTER VIEWER=aplay
+# CONVERTER NEEDED_TOOLS=aylet sox
+# CONVERTER
+
+export INPUT_FILE="$1"
+export OUTPUT_FILE="$2"
+. /etc/converter/tools
+init_filter
+
+echo "Filter AY to WAV"
+echo "INPUT_FILE = $INPUT_FILE"
+echo "OUTPUT_FILE = $OUTPUT_FILE"
+
+TEMPFILE=`mktemp`
+
+aylet -s "$INPUT_FILE" > $TEMPFILE
+sox -b 16 -c 2 -r 44100 -s -t .raw $TEMPFILE -t .wav "$OUTPUT_FILE"
+
+rm -f $TEMPFILE

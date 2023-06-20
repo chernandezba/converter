@@ -1,0 +1,70 @@
+#!/bin/bash
+
+
+#cesar@cesar:~> cat .kde/share/apps/konqueror/servicemenus/kconverter_img_html.desktop
+#[Desktop Entry]
+#ServiceTypes=image/jpeg
+#Actions=Converterimg2html;
+
+#[Desktop Action Converterimg2html]
+#Name=Magic Clone to HTML
+#Icon=wizard
+#Exec=konsole -e /etc/converter/filters.d/img2txt.filter %F @html
+#
+#
+#cesar@cesar:~> cat .kde/share/apps/konqueror/servicemenus/kconverter_img_txt.desktop
+#[Desktop Entry]
+#ServiceTypes=image/jpeg
+#Actions=Converterimg2txt;
+#
+#[Desktop Action Converterimg2txt]
+#Name=Magic Clone to TXT
+#Icon=wizard
+#Exec=konsole -e /etc/converter/filters.d/img2txt.filter %F @txt
+
+
+FILTERS_DIR=/etc/converter/filters.d
+
+IAM=`whoami`
+if [ "$IAM" == "root" ]; then
+
+	KDE_SERVICES_DIR=/opt/kde3/share/apps/konqueror/servicemenus/
+else
+
+	KDE_SERVICES_DIR=$HOME/.kde/share/apps/konqueror/servicemenus/
+fi
+
+for filter in $FILTERS_DIR/*.filter; do
+
+
+	out_ext=`cat $filter|grep "# CONVERTER OUTPUT_EXTENSION"|cut -d '=' -f2-`
+	in_mime=`cat $filter|grep "# CONVERTER INPUT_MIME"|cut -d '=' -f2-|sed 's/ /,/g'`
+	filter_name=`cat $filter|grep "# CONVERTER NAME"|cut -d '=' -f2-`
+
+		for i in $out_ext; do
+			echo filter: $filter
+			echo out_ext: $i
+			echo in_mime: $in_mime
+			echo filter_name: $filter_name
+			short_name=`basename $filter .filter`_$i
+			desktop_file=kconverter_$short_name.desktop
+			echo DESKTOP_FILE: $desktop_file
+
+echo "$KDE_SERVICES_DIR/$desktop_file"
+
+cat > $KDE_SERVICES_DIR/$desktop_file << _EOF
+[Desktop Entry]
+ServiceTypes=$in_mime
+Actions=$short_name;
+
+[Desktop Action $short_name]
+Name=Magic Clone $filter_name ($i)
+Icon=wizard
+Exec=konsole -e $filter %F @$i
+_EOF
+
+		done
+		
+
+done
+

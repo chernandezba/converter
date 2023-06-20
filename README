@@ -1,0 +1,30 @@
+-Installing converter:
+su root
+make install
+
+If you want to integrate converter with kde services menu:
+ Only for the logged user
+ ./generate_kde_services 
+ Or Systemwide:
+ su root
+ ./generate_kde_services 
+
+-Running converter
+
+Execute command "converter [input_file] [output_file]" to convert files
+or open konqueror, right click on a file to convert->Actions and select one Magic Clone action
+
+Run "converter --list-filters" to get the filters available.
+
+You can convert a file in one pass, for example:
+converter input.wav output.mp3
+It runs the wav to mp3 filter
+
+And you can also convert a file in two passes, for example:
+You need to convert avi to mp3, so, there is one filter to convert:
+ * avi to wav
+And another to convert:
+ * wav to mp3
+So, the converter guesses the filters (avi to wav, then waw to mp3) and runs them
+
+

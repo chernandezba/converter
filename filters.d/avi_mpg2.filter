@@ -1,0 +1,24 @@
+#!/bin/bash
+# CONVERTER
+# CONVERTER NAME=AVI to MPEG2
+# CONVERTER INPUT_EXTENSION=avi wmv
+# CONVERTER INPUT_MIME=video/x-msvideo video/x-ms-asf
+# CONVERTER OUTPUT_EXTENSION=mpg
+# CONVERTER OUTPUT_MIME=video/mp2p
+# CONVERTER VIEWER=mplayer
+# CONVERTER NEEDED_TOOLS=mencoder
+# CONVERTER
+
+export INPUT_FILE="$1"
+export OUTPUT_FILE="$2"
+. /etc/converter/tools
+init_filter
+
+echo "Filter AVI to MPEG2"
+echo "INPUT_FILE = $INPUT_FILE"
+echo "OUTPUT_FILE = $OUTPUT_FILE"
+
+TEMPFILE=`mktemp`
+TEMPFILEXML=`mktemp`
+
+mencoder -oac lavc -ovc lavc -of mpeg -lavcopts vcodec=mpeg2video -o "$OUTPUT_FILE" "$INPUT_FILE"

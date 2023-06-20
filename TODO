@@ -1,0 +1,8 @@
+-option to select another filter than guessing
+-file guessing without "-i" ??
+-ffmpeg mp4 still stores x264_2pass.log on current work directory - (ffmpeg2pass on tmp and deleted)
+-ffmpeg2pass tmp files on /tmp not deleted becase ffmpeg added suffix -0.log
+-silent mode
+-m4a to mp3 read id3 tags from m4a and apply to mp3
+-avi to dvd : option to select generated chapters
+-read parameters on filters

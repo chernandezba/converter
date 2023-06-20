@@ -1,0 +1,47 @@
+#!/bin/bash
+# CONVERTER
+# CONVERTER NAME=AVI to DVD - Iso Image
+# CONVERTER INPUT_EXTENSION=avi wmv
+# CONVERTER INPUT_MIME=video/x-msvideo video/x-ms-asf
+# CONVERTER OUTPUT_EXTENSION=iso
+# CONVERTER OUTPUT_MIME=application/x-iso9660
+# CONVERTER VIEWER=mplayer
+# CONVERTER NEEDED_TOOLS=mencoder dvdauthor mkisofs
+# CONVERTER
+
+export INPUT_FILE="$1"
+export OUTPUT_FILE="$2"
+. /etc/converter/tools
+init_filter
+
+echo "Filter AVI to DVD - Iso Image"
+echo "INPUT_FILE = $INPUT_FILE"
+echo "OUTPUT_FILE = $OUTPUT_FILE"
+
+TEMPFILE=`mktemp`
+TEMPFILEXML=`mktemp`
+
+mencoder -oac lavc -ovc lavc -of mpeg -mpegopts format=dvd -vf scale=720:576,harddup -srate 48000 -af lavcresample=48000 -lavcopts vcodec=mpeg2video:vrc_buf_size=1835:vrc_maxrate=9800:vbitrate=5000:keyint=15:aspect=16/9:acodec=ac3:abitrate=192 -ofps 25 -o $TEMPFILE "$INPUT_FILE"
+
+
+cat > $TEMPFILEXML << _EOF
+<dvdauthor>
+  <vmgm />
+    <titleset>
+      <titles>
+        <pgc>
+          <vob file="$TEMPFILE" chapters="0,0:10,0:20,0:30,0:40,0:50" />
+        </pgc>
+      </titles>
+    </titleset>
+</dvdauthor>
+_EOF
+
+rm -fR /tmp/converter_temp_dvd
+
+dvdauthor -o /tmp/converter_temp_dvd -x $TEMPFILEXML
+mkisofs -V MOVIE -dvd-video -o "$OUTPUT_FILE" /tmp/converter_temp_dvd
+
+rm -fR /tmp/converter_temp_dvd
+rm -f $TEMPFILE
+rm -f $TEMPFILEXML

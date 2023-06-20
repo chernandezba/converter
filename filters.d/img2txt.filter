@@ -1,0 +1,33 @@
+#!/bin/bash
+# CONVERTER
+# CONVERTER NAME=Image to text
+# CONVERTER INPUT_EXTENSION=jpg png
+# CONVERTER INPUT_MIME=image/jpeg image/png
+# CONVERTER OUTPUT_EXTENSION=txt html
+# CONVERTER OUTPUT_MIME=text/html
+# CONVERTER VIEWER=konqueror
+# CONVERTER NEEDED_TOOLS=img2txt
+# CONVERTER
+
+export INPUT_FILE="$1"
+export OUTPUT_FILE="$2"
+. /etc/converter/tools
+init_filter
+
+echo "Filter Image to Text"
+echo "INPUT_FILE = $INPUT_FILE"
+echo "OUTPUT_FILE = $OUTPUT_FILE"
+
+echo "Width: "
+read WIDTH
+
+echo "Height: "
+read HEIGHT
+
+
+if [ "$OUTPUT_EXTENSION" == "html" ]; then
+	img2txt -W $WIDTH -H $HEIGHT -f html "$INPUT_FILE" > "$OUTPUT_FILE"
+else
+	img2txt -W $WIDTH -H $HEIGHT -f ansi "$INPUT_FILE" > "$OUTPUT_FILE"
+fi
+

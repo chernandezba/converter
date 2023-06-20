@@ -1,0 +1,29 @@
+#!/bin/bash
+# CONVERTER
+# CONVERTER NAME=Text to WAV
+# CONVERTER INPUT_EXTENSION=txt
+# CONVERTER INPUT_MIME=text/plain
+# CONVERTER OUTPUT_EXTENSION=wav
+# CONVERTER OUTPUT_MIME=audio/x-wav
+# CONVERTER VIEWER=aplay
+# CONVERTER NEEDED_TOOLS=festival text2wave
+# CONVERTER
+
+export INPUT_FILE="$1"
+export OUTPUT_FILE="$2"
+. /etc/converter/tools
+init_filter
+
+echo "Filter Text to WAV"
+echo "INPUT_FILE = $INPUT_FILE"
+echo "OUTPUT_FILE = $OUTPUT_FILE"
+
+echo "Language? 1=Default (english) 2=Spanish"
+read LANGUAGE
+
+if [ "$LANGUAGE" == "2" ]; then
+	#Acentos tienen que estar en formato iso
+	cat "$INPUT_FILE" | iconv -f UTF-8 -t ISO_8859-1 | /etc/converter/text2wave_spanish -o "$OUTPUT_FILE"
+else
+	cat "$INPUT_FILE" | text2wave -o "$OUTPUT_FILE"
+fi

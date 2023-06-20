@@ -1,0 +1,42 @@
+v 0.5
+
+-Added Spectrum SCR to TXT converter
+
+v 0.4
+-Minor bugfixes:
+* viewer not listed with option --list-filters
+* added fuse as a viewer to filter voctzx
+* fixed needed tools on avi_isodvd.filter
+* changed mime detection routine 
+* no case sensitive on file extensions
+* provide some information in case no filter found
+* detect if no input file found
+-Added class to java converter
+-Added MOD, XM, IT audio files to WAV converter
+-Added PDF to Text converter
+-Added AVI to Animated GIF converter
+-Added Animated GIF to AVI converter
+-Use the same input filters to AVI and WMV (video/x-ms-asf) 
+
+v 0.3
+-Added zip to tgz converter
+-Added tgz to zip converter
+-Added m4a (audio/mp4) to mp3 converter
+-Added input protocol support
+-Added DVD track to AVI converter
+-Added AVI to DVD converter
+-Added AVI to MPG2 converter
+-Added TXT to WAV converter (English and Spanish)
+-Added CD track to WAV converter
+-Added Macromedia Flash Video to AVI converter
+-Changed method to load filters
+-Added two-pass filter method. For example:
+ You need to convert avi to mp3, so, there is one filter to convert:
+ * avi to wav
+ And another to convert:
+ * wav to mp3
+ So, the converter guesses the filters (avi to wav, then waw to mp3) and runs them
+-Added MIDI to WAV converter
+
+v 0.2
+-Integration with KDE services

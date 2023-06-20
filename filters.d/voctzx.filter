@@ -1,0 +1,62 @@
+#!/bin/bash
+# CONVERTER
+# CONVERTER NAME=Audio to Spectrum TZX
+# CONVERTER INPUT_EXTENSION=voc wav
+# CONVERTER INPUT_MIME=audio/unknown application/octet-stream audio/x-wav
+# CONVERTER OUTPUT_EXTENSION=tzx
+# CONVERTER OUTPUT_MIME=application/octet-stream 
+# CONVERTER VIEWER=fuse
+# CONVERTER NEEDED_TOOLS=maketzx
+# CONVERTER
+
+export INPUT_FILE="$1"
+export OUTPUT_FILE="$2"
+. /etc/converter/tools
+init_filter
+
+#voc must be
+#30303 hz
+#8 bit
+#unsigned
+#mono
+
+#maketzx doesn't support path in input or output files
+
+echo "Filter Audio to Spectrum TZX"
+echo "INPUT_FILE = $INPUT_FILE"
+echo "OUTPUT_FILE = $OUTPUT_FILE"
+
+TEMPFILE=`mktemp`
+
+if [ "$INPUT_EXTENSION" == "voc" ]; then
+	INPUT_TEMP=`mktemp voctzx.XXXXXX`
+	mv $INPUT_TEMP $INPUT_TEMP.voc
+	OUTPUT_TEMP=`mktemp voctzx.XXXXXX`
+	mv $OUTPUT_TEMP $OUTPUT_TEMP.tzx
+
+	cp "$INPUT_FILE" $INPUT_TEMP.voc
+
+	maketzx $INPUT_TEMP.voc $OUTPUT_TEMP.tzx -ln
+	mv $OUTPUT_TEMP.tzx "$OUTPUT_FILE"
+
+	rm -f $INPUT_TEMP.voc
+	rm -f $OUTPUT_TEMP.tzx
+
+else
+
+#sometimes maketzx doesn't read well wav->voc files......
+	OUTPUT_TEMP=`mktemp voctzx.XXXXXX`
+	mv $OUTPUT_TEMP $OUTPUT_TEMP.voc
+
+	OUTPUT_TEMP2=`mktemp voctzx.XXXXXX`
+	mv $OUTPUT_TEMP2 $OUTPUT_TEMP2.tzx
+
+	sox "$INPUT_FILE"  -u -b 8 -c 1 -r 30303 $OUTPUT_TEMP.voc
+	maketzx $OUTPUT_TEMP.voc $OUTPUT_TEMP2.tzx -ln
+	mv $OUTPUT_TEMP2.tzx "$OUTPUT_FILE"
+
+	rm -f $OUTPUT_TEMP.voc $OUTPUT_TEMP2.tzx
+
+fi
+
+rm -f $TEMPFILE

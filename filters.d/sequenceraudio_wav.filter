@@ -1,0 +1,24 @@
+#!/bin/bash
+# CONVERTER
+# CONVERTER NAME=Sequencer audio file (Mid, Mod, XM, IT) to Audio
+# CONVERTER INPUT_EXTENSION=mid mod xm it
+# CONVERTER INPUT_MIME=audio/unknown audio/x-mod
+# CONVERTER OUTPUT_EXTENSION=wav
+# CONVERTER OUTPUT_MIME=audio/x-wav
+# CONVERTER VIEWER=aplay
+# CONVERTER NEEDED_TOOLS=timidity
+# CONVERTER
+
+export INPUT_FILE="$1"
+export OUTPUT_FILE="$2"
+. /etc/converter/tools
+init_filter
+
+echo "Filter MIDI file (Mid, Mod, XM, IT) to Audio"
+echo "INPUT_FILE = $INPUT_FILE"
+echo "OUTPUT_FILE = $OUTPUT_FILE"
+
+TEMPFILE=`mktemp`
+
+timidity -Ow -o "$OUTPUT_FILE" "$INPUT_FILE"
+

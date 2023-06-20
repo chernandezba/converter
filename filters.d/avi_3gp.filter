@@ -1,0 +1,32 @@
+#!/bin/bash
+# CONVERTER
+# CONVERTER NAME=AVI to Phone 3GP
+# CONVERTER INPUT_EXTENSION=avi wmv
+# CONVERTER INPUT_MIME=video/x-msvideo video/x-ms-asf
+# CONVERTER OUTPUT_EXTENSION=3gp
+# CONVERTER OUTPUT_MIME=video/3gpp
+# CONVERTER VIEWER=mplayer
+# CONVERTER NEEDED_TOOLS=ffmpeg mplayer mencoder
+# CONVERTER
+
+
+export INPUT_FILE="$1"
+export OUTPUT_FILE="$2"
+. /etc/converter/tools
+init_filter
+
+
+echo "Filter AVI to Phone 3GP"
+echo "INPUT_FILE = $INPUT_FILE"
+echo "OUTPUT_FILE = $OUTPUT_FILE"
+
+TEMP_VIDEO=`mktemp`
+TEMP_AUDIO=`mktemp`
+
+mencoder "$INPUT_FILE" -nosound -ovc lavc -lavcopts vcodec=mpeg4 -vf expand=176:144,scale=176:144 -o $TEMP_VIDEO -ofps 12
+mplayer -vo null -ao pcm:file=$TEMP_AUDIO -af resample=8000,volume=+16db:sc "$INPUT_FILE"
+ffmpeg -i $TEMP_VIDEO -i $TEMP_AUDIO -b 12000 -ac 1 -ab 12200 -map 0.0 -map 1.0 "$OUTPUT_FILE"
+
+
+rm -f $TEMP_VIDEO
+rm -f $TEMP_AUDIO

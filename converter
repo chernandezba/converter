@@ -1,0 +1,769 @@
+#!/bin/bash
+
+#
+#
+#    converter
+#
+#    Copyright (c) 2009 Cesar Hernandez <chernandezba@hotmail.com>
+#
+#    This file is part of converter
+#
+#    converter is free software; you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation; either version 2 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this program; if not, write to the Free Software
+#    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+#
+
+VERSION=0.6
+VERSION_DATE="Feb 19, 2014"
+
+DEBUG=0
+
+echo_debug() {
+  if [ $DEBUG == 1 ]; then
+		echo "$1"
+  fi
+}
+
+
+# Load all filters in array
+load_filters() {
+
+	TOTAL_FILTERS=0
+	for filter in $FILTERS_DIR/*.filter; do
+
+		echo_debug "LOADED_FILTER $filter"
+
+
+
+#!/bin/bash
+# CONVERTER
+# CONVERTER NAME=AVI to DVD - Iso Image
+# CONVERTER INPUT_EXTENSION=avi
+# CONVERTER INPUT_MIME=video/x-msvideo
+# CONVERTER OUTPUT_EXTENSION=iso
+# CONVERTER OUTPUT_MIME=application/x-iso9660
+# CONVERTER VIEWER=mplayer
+# CONVERTER NEEDED_TOOLS=mencoder dvdauthor mkisofs
+# CONVERTER
+
+
+#FILTER_SCRIPT
+#FILTER_NAME
+#FILTER_INPUT_EXTENSION=ps,eps
+#FILTER_INPUT_MIME=application/postscript
+#FILTER_OUTPUT_EXTENSION=pdf
+#FILTER_OUTPUT_MIME=application/pdf
+#FILTER_NEEDED_TOOLS
+
+
+		TOTAL_FILTERS=$(($TOTAL_FILTERS+1))
+		FILTER_SCRIPT[$TOTAL_FILTERS]="$filter"
+		FILTER_NAME[$TOTAL_FILTERS]=`cat $filter|grep "# CONVERTER NAME"|cut -d '=' -f2-`
+		FILTER_INPUT_EXTENSION[$TOTAL_FILTERS]=`cat $filter|grep "# CONVERTER INPUT_EXTENSION"|cut -d '=' -f2-`
+		FILTER_INPUT_MIME[$TOTAL_FILTERS]=`cat $filter|grep "# CONVERTER INPUT_MIME"|cut -d '=' -f2-`
+		FILTER_OUTPUT_EXTENSION[$TOTAL_FILTERS]=`cat $filter|grep "# CONVERTER OUTPUT_EXTENSION"|cut -d '=' -f2-`
+		FILTER_OUTPUT_MIME[$TOTAL_FILTERS]=`cat $filter|grep "# CONVERTER OUTPUT_MIME"|cut -d '=' -f2-`
+		FILTER_VIEWER[$TOTAL_FILTERS]=`cat $filter|grep "# CONVERTER VIEWER"|cut -d '=' -f2-`
+		FILTER_NEEDED_TOOLS[$TOTAL_FILTERS]=`cat $filter|grep "# CONVERTER NEEDED_TOOLS"|cut -d '=' -f2-`
+
+
+
+	done
+}
+
+
+# Find filters by INPUT & OUTPUT extension
+get_valid_filters_by_extension() {
+
+	
+	f=1
+
+	while [ $f -le $TOTAL_FILTERS ]; do
+
+		VALID=0
+		echo_debug "GUESS BY EXTENSION Filter = $f"
+
+		# Guess by input and output extension
+		if [ "$OUTPUT_EXTENSION" != "" ]; then
+			out_ext="${FILTER_OUTPUT_EXTENSION[$f]}"
+			echo_debug "out_ext $out_ext"
+			for i in $out_ext; do
+				if [ "$i" == "$OUTPUT_EXTENSION" ]; then
+
+					in_ext="${FILTER_INPUT_EXTENSION[$f]}"
+					echo_debug "in_ext $in_ext"
+					for j in $in_ext; do
+
+						if [ "$j" == "$INPUT_EXTENSION" ]; then
+							# Add to valid filters
+							echo_debug "add to valid filters"
+			
+							VALID=1	
+						fi
+
+
+					done
+
+				fi
+			done
+		fi
+
+
+		if [ "$VALID" == 1 ]; then
+			echo_debug "Add to valid filters"
+			VALID_FILTERS=$(($VALID_FILTERS+1))
+			FILTER_VALID[$VALID_FILTERS]=$f
+		fi
+
+		f=$(($f+1))
+
+	done
+}
+
+# Find filters by INPUT MIME & OUTPUT extension
+get_valid_filters_by_mime() {
+
+
+	f=1
+
+	while [ $f -le $TOTAL_FILTERS ]; do
+
+		VALID=0
+		echo_debug "GUESS BY MIME Filter = $f"
+
+		# Guess by input mime and output extension
+		if [ "$OUTPUT_EXTENSION" != "" ]; then
+			out_ext="${FILTER_OUTPUT_EXTENSION[$f]}"
+			echo_debug "out_ext $out_ext"
+			for i in $out_ext; do
+				if [ "$i" == "$OUTPUT_EXTENSION" ]; then
+
+					in_mime="${FILTER_INPUT_MIME[$f]}"
+					echo_debug "$in_mime"
+					for i in $in_mime; do
+						if [ "$i" == "$INPUT_MIME" ]; then
+							# Add to valid filters
+			
+							VALID=1	
+
+						fi
+					done
+				fi
+			done
+
+
+		fi
+
+		if [ "$VALID" == 1 ]; then
+			echo_debug "Add to valid filters"
+			VALID_FILTERS=$(($VALID_FILTERS+1))
+			FILTER_VALID[$VALID_FILTERS]=$f
+		fi
+
+		f=$(($f+1))
+
+	done
+}
+
+# Find filters by INPUT Protocol & OUTPUT extension
+get_valid_filters_by_protocol() {
+
+	f=1
+
+	while [ $f -le $TOTAL_FILTERS ]; do
+
+		VALID=0
+		echo_debug "GUESS BY PROTOCOL Filter = $f"
+
+	
+		# Guess by input protocol and output extension
+		if [ "$OUTPUT_EXTENSION" != "" ]; then
+			out_ext="${FILTER_OUTPUT_EXTENSION[$f]}"
+
+			echo_debug "out_ext $out_ext"
+			for i in $out_ext; do
+				if [ "$i" == "$OUTPUT_EXTENSION" ]; then
+
+					in_mime="${FILTER_INPUT_MIME[$f]}"
+
+					echo_debug "$in_mime"
+					for i in $in_mime; do
+						echo "$INPUT_FILE"|grep "$i" > /dev/null
+						if [ $? == 0 ]; then
+							# Add to valid filters
+			
+							VALID=1	
+
+						fi
+					done
+				fi
+			done
+
+
+		fi
+
+
+		if [ "$VALID" == 1 ]; then
+			echo_debug "Add to valid filters"
+			VALID_FILTERS=$(($VALID_FILTERS+1))
+			FILTER_VALID[$VALID_FILTERS]=$f
+		fi
+
+		f=$(($f+1))
+
+
+	done
+}
+
+# Find filters using two pass filter - by extension
+#
+#      1 Pass                    2 Pass
+#    | input_mime
+# |- | input_extension
+# |     output_extension  -----> input_extension
+# |     output_mime       -----> input_mime
+# |                               | output_extension
+# |                            |- | output_mime
+# |                            |
+# |                            |
+# INPUT                        OUTPUT
+
+get_valid_filters_by_twopass() {
+
+	#Save original values
+	INPUT_EXTENSION_ORIG="$INPUT_EXTENSION"
+	OUTPUT_EXTENSION_ORIG="$OUTPUT_EXTENSION"
+	INPUT_MIME_ORIG="$INPUT_MIME"
+	OUTPUT_MIME_ORIG="$OUTPUT_MIME"
+
+	TWO_VALID_FILTERS=0
+
+	g=1
+
+	if [ $INPUT_FILE_IS_PROTOCOL == 0 ]; then
+
+		#By input_extension
+		while [ $g -le $TOTAL_FILTERS ]; do
+			echo_debug "GUESS BY TWO PASS - Input Extension - Filter = $g"
+	
+			in_ext="${FILTER_INPUT_EXTENSION[$g]}"
+			echo_debug "in_ext $in_ext"
+	
+			out_ext="${FILTER_OUTPUT_EXTENSION[$g]}"
+			echo_debug "out_ext $out_ext"
+	
+			in_mime="${FILTER_INPUT_MIME[$g]}"
+			echo_debug "in_mime $in_mime"
+	
+			out_mime="${FILTER_OUTPUT_MIME[$g]}"
+			echo_debug "out_mime $out_mime"
+	
+	
+			#For each input_extension
+	
+			for k in $in_ext; do
+	
+				
+				if [ "$k" == "$INPUT_EXTENSION_ORIG" ]; then
+				#Filter input extension is input extension file
+		
+					#find valid extension filter
+					echo_debug "Input matches. Find output"
+					for l in $out_ext; do
+					
+						VALID_FILTERS=0
+					
+						INPUT_EXTENSION="$l"
+						get_valid_filters_by_extension
+				
+						m=1
+	
+						while [ $m -le $VALID_FILTERS ]; do
+							
+							filter_one=$g
+							filter_two=${FILTER_VALID[$m]}
+	
+							echo_debug "Add to valid filters filter_one= $filter_one filter_two= $filter_two"
+							echo_debug "1= ${FILTER_NAME[$filter_one]}"
+							echo_debug "2= ${FILTER_NAME[$filter_two]}"
+	
+							#FILTER_VALID[$VALID_FILTERS]=$g
+							#TWO_FILTER_VALID[$VALID_FILTERS]=$f
+							TWO_FILTER_VALID_ONE[$m]=$filter_one
+							TWO_FILTER_VALID_TWO[$m]=$filter_two
+							
+							TWO_VALID_FILTERS=$(($TWO_VALID_FILTERS+1))
+	
+							m=$(($m+1))
+							
+							
+						done
+						
+				
+				
+					done
+				fi
+				
+			done
+			g=$(($g+1))
+		done
+	
+		#By input_mime
+		if [ $TWO_VALID_FILTERS == 0 ]; then
+		g=1
+			while [ $g -le $TOTAL_FILTERS ]; do
+				echo_debug "GUESS BY TWO PASS - Input Mime - Filter = $g"
+		
+				in_ext="${FILTER_INPUT_EXTENSION[$g]}"
+				echo_debug "in_ext $in_ext"
+		
+				out_ext="${FILTER_OUTPUT_EXTENSION[$g]}"
+				echo_debug "out_ext $out_ext"
+		
+				in_mime="${FILTER_INPUT_MIME[$g]}"
+				echo_debug "in_mime $in_mime"
+		
+				out_mime="${FILTER_OUTPUT_MIME[$g]}"
+				echo_debug "out_mime $out_mime"
+		
+		
+				#For each input_mime
+		
+				for k in $in_mime; do
+		
+					
+					if [ "$k" == "$INPUT_MIME_ORIG" ]; then
+					#Filter input extension is input extension file
+			
+						#find valid mime filter
+						echo_debug "Input matches. Find output"
+						for l in $out_mime; do
+						
+							VALID_FILTERS=0
+						
+							INPUT_MIME="$l"
+							get_valid_filters_by_mime
+					
+							m=1
+		
+							while [ $m -le $VALID_FILTERS ]; do
+								
+								filter_one=$g
+								filter_two=${FILTER_VALID[$m]}
+		
+								echo_debug "Add to valid filters filter_one= $filter_one filter_two= $filter_two"
+								echo_debug "1= ${FILTER_NAME[$filter_one]}"
+								echo_debug "2= ${FILTER_NAME[$filter_two]}"
+		
+								#FILTER_VALID[$VALID_FILTERS]=$g
+								#TWO_FILTER_VALID[$VALID_FILTERS]=$f
+								TWO_FILTER_VALID_ONE[$m]=$filter_one
+								TWO_FILTER_VALID_TWO[$m]=$filter_two
+								
+								TWO_VALID_FILTERS=$(($TWO_VALID_FILTERS+1))
+		
+								m=$(($m+1))
+								
+								
+							done
+							
+					
+					
+						done
+					fi
+					
+				done
+				g=$(($g+1))
+			done
+		fi
+	else
+
+		#By input_protocol
+
+		g=1
+		while [ $g -le $TOTAL_FILTERS ]; do
+			echo_debug "GUESS BY TWO PASS - Input Protocol - Filter = $g"
+	
+			in_ext="${FILTER_INPUT_EXTENSION[$g]}"
+			echo_debug "in_ext $in_ext"
+	
+			out_ext="${FILTER_OUTPUT_EXTENSION[$g]}"
+			echo_debug "out_ext $out_ext"
+	
+			in_mime="${FILTER_INPUT_MIME[$g]}"
+			echo_debug "in_mime $in_mime"
+	
+			out_mime="${FILTER_OUTPUT_MIME[$g]}"
+			echo_debug "out_mime $out_mime"
+	
+	
+			#For each input_mime
+	
+			for k in $in_mime; do
+	
+				echo "$INPUT_FILE"|grep "$k" > /dev/null
+				if [ $? == 0 ]; then
+				#if [ "$k" == "$INPUT_MIME_ORIG" ]; then
+				
+				#Filter input extension is input extension file
+		
+					#find valid mime filter
+					echo_debug "Input matches. Find output"
+					for l in $out_ext; do
+					
+						VALID_FILTERS=0
+					
+						INPUT_EXTENSION="$l"
+						get_valid_filters_by_extension
+				
+						m=1
+	
+						while [ $m -le $VALID_FILTERS ]; do
+							
+							filter_one=$g
+							filter_two=${FILTER_VALID[$m]}
+	
+							echo_debug "Add to valid filters filter_one= $filter_one filter_two= $filter_two"
+							echo_debug "1= ${FILTER_NAME[$filter_one]}"
+							echo_debug "2= ${FILTER_NAME[$filter_two]}"
+	
+							#FILTER_VALID[$VALID_FILTERS]=$g
+							#TWO_FILTER_VALID[$VALID_FILTERS]=$f
+							TWO_FILTER_VALID_ONE[$m]=$filter_one
+							TWO_FILTER_VALID_TWO[$m]=$filter_two
+							
+							TWO_VALID_FILTERS=$(($TWO_VALID_FILTERS+1))
+	
+							m=$(($m+1))
+							
+							
+						done
+						
+				
+				
+					done
+				fi
+				
+			done
+			g=$(($g+1))
+		done
+
+
+	fi
+
+
+}
+
+
+# List filters
+list_filters() {
+
+
+	echo "Total filters: $TOTAL_FILTERS"
+	echo
+
+	f=1
+
+	while [ $f -le $TOTAL_FILTERS ]; do
+
+		echo_debug "LISTED_FILTER $f"
+
+
+		filter_script=${FILTER_SCRIPT[$f]}
+		filter_name=${FILTER_NAME[$f]}
+		in_ext=${FILTER_INPUT_EXTENSION[$f]}
+		in_mime=${FILTER_INPUT_MIME[$f]}
+		out_ext=${FILTER_OUTPUT_EXTENSION[$f]}
+		out_mime=${FILTER_OUTPUT_MIME[$f]}
+		needed_tools=${FILTER_NEEDED_TOOLS[$f]}
+		viewer=${FILTER_VIEWER[$f]}
+		
+		echo "$filter_name"
+		echo " Filter script name : $filter_script"
+		echo " Input extensions : $in_ext"
+		echo " Input mime : $in_mime"
+		echo " Output extensions : $out_ext"
+		echo " Output mime : $out_mime"
+		echo " Needed tools : $needed_tools"
+		echo " Viewer : $viewer"
+
+		echo
+		
+		f=$(($f+1))
+
+
+	done
+}
+
+
+#Handle filters in a two-pass way
+continue_get_valid_filters_by_twopass()
+{
+	get_valid_filters_by_twopass
+
+	if [ $TWO_VALID_FILTERS != 0 ]; then
+		echo "Valid filters (two pass):"
+		cont=0
+		while [ $cont -lt $TWO_VALID_FILTERS ]; do
+			cont=$(($cont+1))
+			echo $cont
+
+			g=${TWO_FILTER_VALID_ONE[$cont]}
+			echo_debug "index = $g"
+			f=${TWO_FILTER_VALID_TWO[$cont]}
+			echo_debug "index = $f"
+
+			echo "  ${FILTER_NAME[$g]}"
+			echo_debug "${FILTER_SCRIPT[$g]}"
+			echo "  ${FILTER_NAME[$f]}"
+			echo_debug "${FILTER_SCRIPT[$f]}"
+
+		done
+		
+		if [ $cont != 1 ]; then
+			echo "Which filter? [1-${TWO_VALID_FILTERS}]"
+			read selected_filter
+		else
+			selected_filter=1
+		fi
+
+		if [ $selected_filter -lt 1 ] || [ $selected_filter -gt $TWO_VALID_FILTERS ]; then
+			echo "Filter index out of range!"
+			exit 1
+		fi
+
+		index_filter_one=${TWO_FILTER_VALID_ONE[$selected_filter]}
+		index_filter_two=${TWO_FILTER_VALID_TWO[$selected_filter]}
+		echo "Using filters ${FILTER_NAME[$index_filter_one]} & ${FILTER_NAME[$index_filter_two]} "
+		echo "Press any key"
+		read PRESS
+
+		# Check if needed tools found
+		echo_debug "need_tools= ${FILTER_NEEDED_TOOLS[$index_filter_one]}"
+		for i in ${FILTER_NEEDED_TOOLS[$index_filter_one]}; do
+			which "$i" > /dev/null 2>&1
+			if [ $? != 0 ]; then
+				echo "Needed tool $i not found"
+				exit 1
+			fi
+		done
+
+		echo_debug "need_tools= ${FILTER_NEEDED_TOOLS[$index_filter_two]}"
+		for i in ${FILTER_NEEDED_TOOLS[$index_filter_two]}; do
+			which "$i" > /dev/null 2>&1
+			if [ $? != 0 ]; then
+				echo "Needed tool $i not found"
+				exit 1
+			fi
+		done
+
+
+# Run selected filters
+#export INPUT_FILE
+#export OUTPUT_FILE
+#export OUTPUT_EXTENSION
+
+		TEMPFILE=`mktemp`
+
+		${FILTER_SCRIPT[$index_filter_one]} "$INPUT_FILE" "$TEMPFILE"
+		${FILTER_SCRIPT[$index_filter_two]} "$TEMPFILE" "$OUTPUT_FILE"
+
+		rm -f $TEMPFILE
+
+		viewer=${FILTER_VIEWER[$index_filter_two]}
+		if [ "$viewer" != "" ]; then
+			echo "Do you want to open generated file using ${viewer} ? (Y/N)"
+			read ANSWER
+			if [ "$ANSWER" == "y" ] || [ "$ANSWER" == "Y" ]; then
+				
+				$viewer "$OUTPUT_FILE"
+			fi
+		fi
+		exit 0
+
+	else
+
+		echo "No valid filters"
+		#TODO: read manually
+
+		echo "We need some new filter to convert:"
+		echo "Input file: extension: .$INPUT_EXTENSION_ORIG. Mime type: $INPUT_MIME_ORIG"
+		echo "Output file: extension: .$OUTPUT_EXTENSION_ORIG"
+
+
+
+		exit 0
+	fi
+
+}
+
+
+#Main
+
+
+#Arrays of loaded filters
+#FILTER_SCRIPT
+#FILTER_NAME
+#FILTER_INPUT_EXTENSION
+#FILTER_INPUT_MIME
+#FILTER_OUTPUT_EXTENSION
+#FILTER_OUTPUT_MIME
+#FILTER_NEEDED_TOOLS
+
+#Valid filter array
+#FILTER_VALID -> Index to loaded filters
+
+
+echo "Converter Version ${VERSION} ${VERSION_DATE}"
+echo "Released under the GNU General Public License"
+echo "Created by Cesar Hernandez"
+echo
+
+#debugging FILTERS_DIR=`pwd`/filters.d
+FILTERS_DIR=/etc/converter/filters.d
+#ls $FILTERS_DIR
+
+if [ "$1" == "--list-filters" ]; then
+	# Load all filters in array
+	load_filters
+	list_filters
+	exit 0
+fi
+
+
+if [ $# != 2 ]; then
+	echo "Syntax:"
+	echo "Convert files:"
+	echo "$0 [Input file] [Output file]"
+	echo "List filters:"
+	echo "$0 --list-filters"
+	echo
+	exit 1
+fi
+
+
+export INPUT_FILE="$1"
+
+if [ ! -e "$INPUT_FILE" ]; then
+    echo "Input file $INPUT_FILE not found"
+    exit 1
+fi
+
+export OUTPUT_FILE="$2"
+
+. /etc/converter/tools
+init_filter
+
+# Load all filters in array
+load_filters
+
+
+# Get input file extension
+INPUT_EXTENSION=`echo -n "$INPUT_FILE"|sed 's/.*\.//'|tr '[:upper:]' '[:lower:]'`
+echo_debug "INPUT_EXTENSION = $INPUT_EXTENSION"
+
+# Get output file extension
+OUTPUT_EXTENSION=`echo -n "$OUTPUT_FILE"|sed 's/.*\.//'|tr '[:upper:]' '[:lower:]'`
+echo_debug "OUTPUT_EXTENSION = $OUTPUT_EXTENSION"
+
+# Get input mime
+INPUT_MIME=`file -b -i $INPUT_FILE|cut -d ';' -f1`
+echo_debug "INPUT_MIME = $INPUT_MIME"
+
+# Input file specifies a protocol? XXX://
+echo -n "$INPUT_FILE"|grep ".*://" > /dev/null
+if [ $? == 0 ]; then
+	echo "Input file is a protocol"
+	INPUT_FILE_IS_PROTOCOL=1
+else
+	INPUT_FILE_IS_PROTOCOL=0
+fi
+
+VALID_FILTERS=0
+
+if [ $INPUT_FILE_IS_PROTOCOL == 0 ]; then
+	get_valid_filters_by_extension
+	if [ $VALID_FILTERS == 0 ]; then
+		echo_debug "No valid filters by extension. Try MIME input..."
+		get_valid_filters_by_mime
+
+	fi
+else
+	#input file is a protocol
+	get_valid_filters_by_protocol
+fi
+
+
+
+if [ $VALID_FILTERS != 0 ]; then
+	echo "Valid filters:"
+
+	cont=0
+	while [ $cont -lt $VALID_FILTERS ]; do
+	
+		cont=$(($cont+1))
+		f=${FILTER_VALID[$cont]}
+		echo_debug "index = $f"
+		echo $cont ${FILTER_NAME[$f]}
+		echo_debug "${FILTER_SCRIPT[$f]}"
+	done
+fi
+
+
+if [ $VALID_FILTERS == 0 ]; then
+	echo_debug "Read filters by two pass transformation"
+	continue_get_valid_filters_by_twopass
+fi
+
+if [ $cont != 1 ]; then
+	echo "Which filter? [1-${VALID_FILTERS}]"
+	read selected_filter
+else
+	selected_filter=1
+fi
+
+if [ $selected_filter -lt 1 ] || [ $selected_filter -gt $VALID_FILTERS ]; then
+	echo "Filter index out of range!"
+	exit 1
+fi
+
+index_filter=${FILTER_VALID[$selected_filter]}
+echo "Using filter ${FILTER_NAME[$index_filter]}"
+echo "Press any key"
+read PRESS
+
+# Check if needed tools found
+echo_debug "need_tools= ${FILTER_NEEDED_TOOLS[$index_filter]}"
+for i in ${FILTER_NEEDED_TOOLS[$index_filter]}; do
+	which "$i" > /dev/null 2>&1
+	if [ $? != 0 ]; then
+		echo "Needed tool $i not found"
+		exit 1
+	fi
+done
+
+# Run selected filter
+#export INPUT_FILE
+#export OUTPUT_FILE
+#export OUTPUT_EXTENSION
+${FILTER_SCRIPT[$index_filter]} "$INPUT_FILE" "$OUTPUT_FILE"
+
+viewer=${FILTER_VIEWER[$index_filter]}
+if [ "$viewer" != "" ]; then
+	echo "Do you want to open generated file using ${viewer} ? (Y/N)"
+	read ANSWER
+	if [ "$ANSWER" == "y" ] || [ "$ANSWER" == "Y" ]; then
+		
+		$viewer "$OUTPUT_FILE"
+	fi
+fi

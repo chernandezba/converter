@@ -1,0 +1,46 @@
+#!/bin/bash
+
+#
+#
+#    tools
+#
+#    Copyright (c) 2009 Cesar Hernandez <chernandezba@hotmail.com>
+#
+#    This file is part of converter
+#
+#    converter is free software; you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation; either version 2 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this program; if not, write to the Free Software
+#    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+#
+
+
+init_filter()
+{
+
+	INPUT_EXTENSION=`echo -n "$INPUT_FILE"|sed 's/.*\.//'`
+	OUTPUT_EXTENSION=`echo -n "$OUTPUT_FILE"|sed 's/.*\.//'`
+
+	#if output_file begins with "@" try the rest as the new extension
+
+
+	echo -n "$OUTPUT_FILE"|grep "^@.*" > /dev/null
+	if [ $? == 0 ]; then
+
+		INPUT_EXTENSION=`echo -n "$INPUT_FILE"|sed 's/.*\.//'`
+		OUTPUT_EXTENSION=`echo -n "$OUTPUT_FILE"|sed 's/@//'`
+		NAME=`basename $INPUT_FILE .$INPUT_EXTENSION`
+		DIRECTORY=`dirname $INPUT_FILE`
+		OUTPUT_FILE="$DIRECTORY/$NAME.$OUTPUT_EXTENSION"
+	fi
+
+}

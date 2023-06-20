@@ -1,0 +1,30 @@
+#!/bin/bash
+# CONVERTER
+# CONVERTER NAME=Spectrum TZX file to Audio
+# CONVERTER INPUT_EXTENSION=tzx
+# CONVERTER INPUT_MIME=application/octet-stream
+# CONVERTER OUTPUT_EXTENSION=wav voc
+# CONVERTER OUTPUT_MIME=audio/x-wav audio/unknown
+# CONVERTER VIEWER=aplay
+# CONVERTER NEEDED_TOOLS=playtzx sox
+# CONVERTER
+
+export INPUT_FILE="$1"
+export OUTPUT_FILE="$2"
+. /etc/converter/tools
+init_filter
+
+echo "Filter TZX to Audio"
+echo "INPUT_FILE = $INPUT_FILE"
+echo "OUTPUT_FILE = $OUTPUT_FILE"
+
+TEMPFILE=`mktemp`
+
+if [ "$OUTPUT_EXTENSION" == "wav" ]; then
+	playtzx "$INPUT_FILE" -voc -freq 44100 $TEMPFILE
+	sox -b 16 -c 1 -r 22050 -s -t .raw $TEMPFILE -t .wav "$OUTPUT_FILE"
+else
+	playtzx -voc "$INPUT_FILE" "$OUTPUT_FILE"
+fi
+
+rm -f $TEMPFILE

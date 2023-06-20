@@ -1,0 +1,22 @@
+#!/bin/bash
+# CONVERTER
+# CONVERTER NAME=Macromedia Flash Video to AVI
+# CONVERTER INPUT_EXTENSION=flv
+# CONVERTER INPUT_MIME=application/octet-stream
+# CONVERTER OUTPUT_EXTENSION=avi
+# CONVERTER OUTPUT_MIME=video/x-msvideo
+# CONVERTER VIEWER=mplayer
+# CONVERTER NEEDED_TOOLS=mencoder
+# CONVERTER
+
+export INPUT_FILE="$1"
+export OUTPUT_FILE="$2"
+. /etc/converter/tools
+init_filter
+
+echo "Filter Macromedia Flash Video to AVI"
+echo "INPUT_FILE = $INPUT_FILE"
+echo "OUTPUT_FILE = $OUTPUT_FILE"
+
+mencoder "$INPUT_FILE" -alang es -oac mp3lame -lameopts cbr:br=96:vol=2.50 -ovc lavc -lavcopts vcodec=mpeg4:vbitrate=2000 -o "$OUTPUT_FILE"
+

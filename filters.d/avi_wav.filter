@@ -1,0 +1,23 @@
+#!/bin/bash
+# CONVERTER
+# CONVERTER NAME=AVI to WAV
+# CONVERTER INPUT_EXTENSION=avi wmv
+# CONVERTER INPUT_MIME=video/x-msvideo video/x-ms-asf
+# CONVERTER OUTPUT_EXTENSION=wav
+# CONVERTER OUTPUT_MIME=audio/x-wav
+# CONVERTER VIEWER=mplayer
+# CONVERTER NEEDED_TOOLS=aplay
+# CONVERTER
+
+
+export INPUT_FILE="$1"
+export OUTPUT_FILE="$2"
+. /etc/converter/tools
+init_filter
+
+
+echo "Filter AVI to WAV"
+echo "INPUT_FILE = $INPUT_FILE"
+echo "OUTPUT_FILE = $OUTPUT_FILE"
+
+mplayer -vc null -vo null -ao "pcm:file=$OUTPUT_FILE" "$INPUT_FILE"

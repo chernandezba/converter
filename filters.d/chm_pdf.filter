@@ -1,0 +1,27 @@
+#!/bin/bash
+# CONVERTER
+# CONVERTER NAME=CHM to PDF
+# CONVERTER INPUT_EXTENSION=chm
+# CONVERTER INPUT_MIME=application/octet-stream
+# CONVERTER OUTPUT_EXTENSION=pdf
+# CONVERTER OUTPUT_MIME=application/pdf
+# CONVERTER VIEWER=okular
+# CONVERTER NEEDED_TOOLS=chm2pdf
+# CONVERTER
+
+export INPUT_FILE="$1"
+export OUTPUT_FILE="$2"
+. /etc/converter/tools
+init_filter
+
+echo "Filter CHM to PDF"
+echo "INPUT_FILE = $INPUT_FILE"
+echo "OUTPUT_FILE = $OUTPUT_FILE"
+
+TEMPFILE=`mktemp`
+
+cp "$INPUT_FILE" $TEMPFILE
+
+chm2pdf --webpage "$TEMPFILE" "$OUTPUT_FILE"
+
+rm -f $TEMPFILE

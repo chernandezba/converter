@@ -1,0 +1,22 @@
+#!/bin/bash
+# CONVERTER
+# CONVERTER NAME=Java Class to Source Java
+# CONVERTER INPUT_EXTENSION=class
+# CONVERTER INPUT_MIME=application/java
+# CONVERTER OUTPUT_EXTENSION=java
+# CONVERTER OUTPUT_MIME=text/x-java
+# CONVERTER VIEWER=less
+# CONVERTER NEEDED_TOOLS=jad
+# CONVERTER
+
+export INPUT_FILE="$1"
+export OUTPUT_FILE="$2"
+. /etc/converter/tools
+init_filter
+
+echo "Filter Java Class to Source Java"
+echo "INPUT_FILE = $INPUT_FILE"
+echo "OUTPUT_FILE = $OUTPUT_FILE"
+
+
+jad -s java "$INPUT_FILE"

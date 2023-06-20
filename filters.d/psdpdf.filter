@@ -1,0 +1,21 @@
+#!/bin/bash
+# CONVERTER
+# CONVERTER NAME=Postcript to PDF
+# CONVERTER INPUT_EXTENSION=ps eps
+# CONVERTER INPUT_MIME=application/postscript
+# CONVERTER OUTPUT_EXTENSION=pdf
+# CONVERTER OUTPUT_MIME=application/pdf
+# CONVERTER VIEWER=okular
+# CONVERTER NEEDED_TOOLS=ps2pdf
+# CONVERTER
+
+export INPUT_FILE="$1"
+export OUTPUT_FILE="$2"
+. /etc/converter/tools
+init_filter
+
+echo "Filter PS to PDF"
+echo "INPUT_FILE = $INPUT_FILE"
+echo "OUTPUT_FILE = $OUTPUT_FILE"
+
+ps2pdf "$INPUT_FILE" "$OUTPUT_FILE"

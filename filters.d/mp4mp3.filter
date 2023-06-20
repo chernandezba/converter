@@ -1,0 +1,25 @@
+#!/bin/bash
+# CONVERTER
+# CONVERTER NAME=Audio MP4 to MP3
+# CONVERTER INPUT_EXTENSION=m4a
+# CONVERTER INPUT_MIME=audio/mp4
+# CONVERTER OUTPUT_EXTENSION=mp3
+# CONVERTER OUTPUT_MIME=audio/mpeg
+# CONVERTER VIEWER=mplayer
+# CONVERTER NEEDED_TOOLS=mplayer lame 
+# CONVERTER
+
+export INPUT_FILE="$1"
+export OUTPUT_FILE="$2"
+. /etc/converter/tools
+init_filter
+
+echo "Filter Audio MP4 to MP3"
+echo "INPUT_FILE = $INPUT_FILE"
+echo "OUTPUT_FILE = $OUTPUT_FILE"
+
+TEMPFILE=`mktemp`
+mplayer -vc null -vo null -ao pcm:file=$TEMPFILE "$INPUT_FILE"
+lame $TEMPFILE "$OUTPUT_FILE"
+
+rm -f $TEMPFILE

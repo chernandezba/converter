@@ -1,0 +1,21 @@
+#!/bin/bash
+# CONVERTER
+# CONVERTER NAME=Spectrum screen SCR to Text
+# CONVERTER INPUT_EXTENSION=scr
+# CONVERTER INPUT_MIME=application/octet-stream
+# CONVERTER OUTPUT_EXTENSION=txt
+# CONVERTER OUTPUT_MIME=text/plain
+# CONVERTER VIEWER=less
+# CONVERTER NEEDED_TOOLS=scr2txt
+# CONVERTER
+
+export INPUT_FILE="$1"
+export OUTPUT_FILE="$2"
+. /etc/converter/tools
+init_filter
+
+echo "Filter Spectrum screen SCR to Text"
+echo "INPUT_FILE = $INPUT_FILE"
+echo "OUTPUT_FILE = $OUTPUT_FILE"
+
+scr2txt "$INPUT_FILE" artistic > "$OUTPUT_FILE"

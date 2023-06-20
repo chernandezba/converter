@@ -1,0 +1,21 @@
+#!/bin/bash
+# CONVERTER
+# CONVERTER NAME=AVI to Animated GIF
+# CONVERTER INPUT_EXTENSION=avi wmv
+# CONVERTER INPUT_MIME=video/x-msvideo video/x-ms-asf
+# CONVERTER OUTPUT_EXTENSION=gif
+# CONVERTER OUTPUT_MIME=image/gif
+# CONVERTER VIEWER=konqueror
+# CONVERTER NEEDED_TOOLS=mplayer
+# CONVERTER
+
+export INPUT_FILE="$1"
+export OUTPUT_FILE="$2"
+. /etc/converter/tools
+init_filter
+
+echo "Filter AVI to Animated GIF"
+echo "INPUT_FILE = $INPUT_FILE"
+echo "OUTPUT_FILE = $OUTPUT_FILE"
+
+mplayer "$INPUT_FILE" -nosound -vo gif89a:output="$OUTPUT_FILE"

@@ -1,0 +1,32 @@
+#!/bin/bash
+# CONVERTER
+# CONVERTER NAME=Tar.gz to Zip
+# CONVERTER INPUT_EXTENSION=tgz gz
+# CONVERTER INPUT_MIME=application/x-gzip
+# CONVERTER OUTPUT_EXTENSION=zip
+# CONVERTER OUTPUT_MIME=application/x-zip
+# CONVERTER VIEWER=ark
+# CONVERTER NEEDED_TOOLS=tar zip
+# CONVERTER
+
+export INPUT_FILE="$1"
+export OUTPUT_FILE="$2"
+. /etc/converter/tools
+init_filter
+
+echo "Filter tar.gz to zip"
+echo "INPUT_FILE = $INPUT_FILE"
+echo "OUTPUT_FILE = $OUTPUT_FILE"
+
+TEMPDIR=`mktemp -d`
+TEMPZIP=`mktemp`.zip
+
+tar -C $TEMPDIR -xvzf "$INPUT_FILE"
+CWD=`pwd`
+cd $TEMPDIR
+zip -r $TEMPZIP .
+cd $CWD
+mv -f $TEMPZIP "$OUTPUT_FILE"
+
+rm -f $TEMPZIP
+rm -fR $TEMPDIR

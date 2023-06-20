@@ -1,0 +1,45 @@
+#!/bin/bash
+# CONVERTER
+# CONVERTER NAME=AVI to Nokia MP4
+# CONVERTER INPUT_EXTENSION=avi wmv
+# CONVERTER INPUT_MIME=video/x-msvideo video/x-ms-asf
+# CONVERTER OUTPUT_EXTENSION=mp4
+# CONVERTER OUTPUT_MIME=video/mp4
+# CONVERTER VIEWER=mplayer
+# CONVERTER NEEDED_TOOLS=ffmpeg
+# CONVERTER
+
+export INPUT_FILE="$1"
+export OUTPUT_FILE="$2"
+. /etc/converter/tools
+init_filter
+
+echo "Filter AVI to Nokia MP4"
+echo "INPUT_FILE = $INPUT_FILE"
+echo "OUTPUT_FILE = $OUTPUT_FILE"
+
+echo "Passes: 1/2"
+read PASSES
+
+if [ "$PASSES" == "2" ]; then
+#dos pasadas
+
+PASS_LOG_FILE=`mktemp`
+
+
+ffmpeg -passlogfile $PASS_LOG_FILE -y -i "$INPUT_FILE" -v 1 -vcodec mpeg4 -b 500k -bt 175k -refs 1  -deblockalpha 0 -deblockbeta 0   -subq 6 -me_range 21  -bf 0 -level 30 -g 300 -keyint_min 30 -sc_threshold 40  -qcomp 0.7 -qmax 51 -qdiff 4 -i_qfactor 0.71428572 -maxrate 768k -bufsize 2M -cmp 1 -s 320x240 -acodec libfaac -ab 96 -ar 48000 -ac 2 -f mp4 -pass 1 /dev/null
+
+ffmpeg -passlogfile $PASS_LOG_FILE -y -i "$INPUT_FILE" -v 1 -vcodec mpeg4 -b 500k -bt 175k -refs 1  -deblockalpha 0 -deblockbeta 0   -subq 6 -me_range 21  -bf 0 -level 30 -g 300 -keyint_min 30 -sc_threshold 40  -qcomp 0.7 -qmax 51 -qdiff 4 -i_qfactor 0.71428572 -maxrate 768k -bufsize 2M -cmp 1 -s 320x240 -acodec libfaac -ab 96 -ar 48000 -ac 2 -f mp4 -pass 2 "$OUTPUT_FILE"
+
+
+rm -f $PASS_LOG_FILE
+rm -f x264_2pass.log
+
+else
+
+#1 pasada
+
+ffmpeg -y -i "$INPUT_FILE" -v 1 -vcodec mpeg4 -b 500k -bt 175k -refs 1  -deblockalpha 0 -deblockbeta 0   -subq 6 -me_range 21  -bf 0 -level 30 -g 300 -keyint_min 30 -sc_threshold 40  -qcomp 0.7 -qmax 51 -qdiff 4 -i_qfactor 0.71428572 -maxrate 768k -bufsize 2M -cmp 1 -s 320x240 -acodec libfaac -ab 96 -ar 48000 -ac 2 -f mp4 "$OUTPUT_FILE"
+
+
+fi

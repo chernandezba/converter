@@ -1,0 +1,21 @@
+#!/bin/bash
+# CONVERTER
+# CONVERTER NAME=PDF to Text
+# CONVERTER INPUT_EXTENSION=pdf
+# CONVERTER INPUT_MIME=application/pdf
+# CONVERTER OUTPUT_EXTENSION=txt
+# CONVERTER OUTPUT_MIME=text/plain
+# CONVERTER VIEWER=less
+# CONVERTER NEEDED_TOOLS=pdftotext
+# CONVERTER
+
+export INPUT_FILE="$1"
+export OUTPUT_FILE="$2"
+. /etc/converter/tools
+init_filter
+
+echo "Filter PDF to Text"
+echo "INPUT_FILE = $INPUT_FILE"
+echo "OUTPUT_FILE = $OUTPUT_FILE"
+
+pdftotext "$INPUT_FILE" "$OUTPUT_FILE"

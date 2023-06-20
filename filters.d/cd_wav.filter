@@ -1,0 +1,24 @@
+#!/bin/bash
+# CONVERTER
+# CONVERTER NAME=CD track to WAV
+# CONVERTER INPUT_EXTENSION=
+# CONVERTER INPUT_MIME=cd://
+# CONVERTER OUTPUT_EXTENSION=wav
+# CONVERTER OUTPUT_MIME=audio/x-wav
+# CONVERTER VIEWER=aplay
+# CONVERTER NEEDED_TOOLS=cdparanoia
+# CONVERTER
+
+export INPUT_FILE="$1"
+export OUTPUT_FILE="$2"
+. /etc/converter/tools
+init_filter
+
+echo "Filter CD track to WAV"
+echo "INPUT_FILE = $INPUT_FILE"
+echo "OUTPUT_FILE = $OUTPUT_FILE"
+
+TRACK=`echo -n $INPUT_FILE|sed 's/cd:\/\///'`
+
+cdparanoia -w $TRACK "$OUTPUT_FILE"
+
